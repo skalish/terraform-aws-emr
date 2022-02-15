@@ -64,22 +64,14 @@ variable "additional_tags" {
   default     = {}
 }
 
-variable "emr_service_role_name" {
+variable "emr_service_role_arn" {
   type        = string
-  description = "Name of the new IAM service role for the EMR cluster"
-  default     = "tamr_emr_service_role"
+  description = "ARN of the IAM service role for the EMR cluster"
 }
 
-variable "emr_ec2_role_name" {
+variable "emr_ec2_instance_profile_arn" {
   type        = string
-  description = "Name of the new IAM role for EMR EC2 instances"
-  default     = "tamr_emr_ec2_role"
-}
-
-variable "emr_ec2_instance_profile_name" {
-  type        = string
-  description = "Name of the new instance profile for EMR EC2 instances"
-  default     = "tamr_emr_ec2_instance_profile"
+  description = "ARN of the instance profile for EMR EC2 instances"
 }
 
 variable "s3_policy_arns" {
@@ -175,12 +167,6 @@ variable "emr_service_iam_policy_name" {
   type        = string
   description = "Name for the IAM policy attached to the EMR Service role"
   default     = "tamr-emr-service-policy"
-}
-
-variable "emr_ec2_iam_policy_name" {
-  type        = string
-  description = "Name for the IAM policy attached to the EMR service role"
-  default     = "tamr-emr-ec2-policy"
 }
 
 variable "applications" {

@@ -13,6 +13,129 @@ Fully working examples for each pattern of use. These examples might require ext
 ### Invokes submodules:
 - [Ephemeral Spark Cluster](https://github.com/Datatamer/terraform-aws-emr/tree/master/examples/ephemeral-spark)
 
+# Resources Required
+This module requires the prior existence of
+* 2 IAM roles:
+  * Tamr EMR service IAM role, i.e.
+```
+statement {
+  effect = "Allow"
+
+  principals {
+    type        = "Service"
+    identifiers = ["elasticmapreduce.amazonaws.com"]
+  }
+
+  actions = ["sts:AssumeRole"]
+}
+```
+  * Tamr EMR EC2 IAM role with an associated instance profile, i.e.
+```
+statement {
+  effect = "Allow"
+
+  principals {
+    type        = "Service"
+    identifiers = ["ec2.amazonaws.com"]
+  }
+
+  actions = ["sts:AssumeRole"]
+}
+```
+* 2 IAM Policies:
+  * Minimum required EMR service policy, i.e.
+```
+[
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:AuthorizeSecurityGroupEgress",
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:CancelSpotInstanceRequests",
+      "ec2:CreateNetworkInterface",
+      "ec2:CreateTags",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DeleteTags",
+      "ec2:Describe*",
+      "ec2:DetachNetworkInterface",
+      "ec2:ModifyImageAttribute",
+      "ec2:ModifyInstanceAttribute",
+      "ec2:RequestSpotInstances",
+      "ec2:RevokeSecurityGroupEgress",
+      "ec2:RunInstances",
+      "ec2:TerminateInstances",
+      "ec2:DeleteVolume",
+      "ec2:DetachVolume",
+      "iam:GetRole",
+      "iam:GetRolePolicy",
+      "iam:ListInstanceProfiles",
+      "iam:ListRolePolicies",
+      "iam:PassRole",
+      "sqs:CreateQueue",
+      "sqs:Delete*",
+      "sqs:GetQueue*",
+      "sqs:PurgeQueue",
+      "sqs:ReceiveMessage",
+      "cloudwatch:PutMetricAlarm",
+      "cloudwatch:DescribeAlarms",
+      "cloudwatch:DeleteAlarms",
+    ]
+    resources = ["*"]
+  }
+  //The following permissions are for the cluster get/put S3 bucket info and objects for logs
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:Get*",
+      "s3:List*",
+      "s3:PutObject",
+      "s3:PutObjectTagging"
+    ]
+    resources = [
+      "arn:${var.arn_partition}:s3:::${var.s3_bucket_name_for_logs}",
+      "arn:${var.arn_partition}:s3:::${var.s3_bucket_name_for_logs}/*"
+    ]
+  }
+  //The following permission passes the EC2 instance profile role to the EC2 instances created by the EMR cluster
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = [
+      "${var.emr_ec2_instance_profile_arn}"
+    ]
+  }
+]
+```
+  * Minimum required EMR EC2 policy, i.e.
+```
+[
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:Describe*",
+      "elasticmapreduce:Describe*",
+      "elasticmapreduce:ListBootstrapActions",
+      "elasticmapreduce:ListClusters",
+      "elasticmapreduce:ListInstanceGroups",
+      "elasticmapreduce:ListInstances",
+      "elasticmapreduce:ListSteps"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData",
+      "s3:HeadBucket",
+    ]
+    resources = ["*"]
+  }
+]
+```
+
 # Resources Created
 This module creates:
 * 5 Security Groups
@@ -22,13 +145,6 @@ This module creates:
     * One security group for additional ports for Core instance(s)
     * One service access security group that can be attached to any instance
 * Security group rules. The number of the security group rules varies based on the number of CIDRs or source SGs provided.
-* 2 IAM Policies:
-    * Minimum required EMR service policy
-    * Minimum required EMR EC2 policy
-* 2 IAM roles:
-    * Tamr EMR service IAM role
-    * Tamr EMR EC2 IAM role
-* 1 IAM instance profile for EMR EC2 instances
 * 1 bucket object with the cluster's JSON configuration in the root directory S3 bucket
 
 If you are creating a static HBase or Spark cluster, this module also creates:

@@ -24,28 +24,13 @@ output "emr_service_access_sg_id" {
 }
 
 output "emr_service_role_arn" {
-  value       = module.emr-iam.emr_service_role_arn
+  value       = var.emr_service_role_arn
   description = "ARN of the EMR service role created"
 }
 
-output "emr_service_role_name" {
-  value       = module.emr-iam.emr_service_role_name
-  description = "Name of the EMR service role created"
-}
-
-output "emr_ec2_role_arn" {
-  value       = module.emr-iam.emr_ec2_role_arn
-  description = "ARN of the EMR EC2 role created for EC2 instances"
-}
-
 output "emr_ec2_instance_profile_arn" {
-  value       = module.emr-iam.emr_ec2_instance_profile_arn
-  description = "ARN of the EMR EC2 instance profile created"
-}
-
-output "emr_ec2_instance_profile_name" {
-  value       = module.emr-iam.emr_ec2_instance_profile_name
-  description = "Name of the EMR EC2 instance profile created"
+  value       = var.emr_ec2_instance_profile_arn
+  description = "ARN of the EMR EC2 instance profile"
 }
 
 output "tamr_emr_cluster_id" {

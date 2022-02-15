@@ -17,20 +17,6 @@ module "emr-sgs" {
   additional_tags               = var.additional_tags
 }
 
-module "emr-iam" {
-  source                            = "./modules/aws-emr-iam"
-  s3_bucket_name_for_logs           = var.bucket_name_for_logs
-  s3_bucket_name_for_root_directory = var.bucket_name_for_root_directory
-  s3_policy_arns                    = var.s3_policy_arns
-  emr_ec2_iam_policy_name           = var.emr_ec2_iam_policy_name
-  emr_service_iam_policy_name       = var.emr_service_iam_policy_name
-  emr_service_role_name             = var.emr_service_role_name
-  emr_ec2_instance_profile_name     = var.emr_ec2_instance_profile_name
-  emr_ec2_role_name                 = var.emr_ec2_role_name
-  additional_tags                   = var.additional_tags
-  arn_partition                     = var.arn_partition
-}
-
 module "emr-cluster-config" {
   source                         = "./modules/aws-emr-config"
   create_static_cluster          = var.create_static_cluster
@@ -87,8 +73,8 @@ module "emr-cluster" {
   emr_service_access_sg_id    = module.emr-sgs.emr_service_access_sg_id
 
   # IAM
-  emr_service_role_arn         = module.emr-iam.emr_service_role_arn
-  emr_ec2_instance_profile_arn = module.emr-iam.emr_ec2_instance_profile_arn
+  emr_service_role_arn         = var.emr_service_role_arn
+  emr_ec2_instance_profile_arn = var.emr_ec2_instance_profile_arn
 
   additional_tags = var.additional_tags
 }
